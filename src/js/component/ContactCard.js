@@ -1,13 +1,16 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import "../../styles/home.css";
 
-export const ContactCard = ({ name, address, phone, email, onEdit, onDelete }) => {
+export const ContactCard = ({ id, name, address, phone, email, onEdit, onDelete }) => {
+    const navigate = useNavigate();
+
     return (
         <div className="list-group-item list-group-item-action">
             <div className="d-flex align-items-center">
                 <img
-                    src="https://via.placeholder.com/50"
+                    src="https://via.placeholder.com/100"
                     alt="Contact"
                     className="rounded-circle"
                 />
@@ -19,10 +22,15 @@ export const ContactCard = ({ name, address, phone, email, onEdit, onDelete }) =
                 </div>
             </div>
             <div>
-                <button className="btn btn-light" onClick={onEdit}>
+                <button
+                    className="btn btn-light"
+                    onClick={() => navigate(`/edit-contact/${id}`, {
+                        state: { name, address, phone, email }
+                    })}
+                >
                     <i className="fas fa-pencil-alt"></i>
                 </button>
-                <button className="btn btn-light" onClick={onDelete}>
+                <button className="btn btn-light" onClick={() => onDelete(id)}>
                     <i className="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -31,10 +39,10 @@ export const ContactCard = ({ name, address, phone, email, onEdit, onDelete }) =
 };
 
 ContactCard.propTypes = {
+    id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     address: PropTypes.string.isRequired,
     phone: PropTypes.string.isRequired,
     email: PropTypes.string.isRequired,
-    onEdit: PropTypes.func,
     onDelete: PropTypes.func.isRequired,
 };

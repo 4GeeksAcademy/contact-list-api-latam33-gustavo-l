@@ -7,13 +7,12 @@ export const Home = () => {
 
     useEffect(() => {
         actions.fetchContacts(); 
-        // actions.fetchAgendas(); 
     }, []);
 
-    // if (!Array.isArray(store.agendas)) {
-    //     console.error("store.agendas is not an array:", store.agendas);
-    //     return <p>Loading contacts...</p>;
-    // }
+    if (!Array.isArray(store.contacts)) {
+        console.error("store.contacts is not an array:", store.contacts);
+        return <p>Loading contacts...</p>;
+    }
 
     return (
         <div className="container mt-5">
@@ -23,11 +22,18 @@ export const Home = () => {
                     store.contacts.map((contact, index) => (
                         <ContactCard
                             key={index}
+                            id={contact.id}  
                             name={contact.name}
                             address={contact.address}
                             phone={contact.phone}
                             email={contact.email}
-                            onDelete={() => actions.deleteContact(contact.agenda_slug, contact.id)}
+                            onEdit={(id) => {
+                                console.log("Edit contact with ID:", id);
+
+                            }}
+                            onDelete={(id) => {
+                                actions.deleteContact(id); 
+                            }}
                         />
                     ))
                 ) : (

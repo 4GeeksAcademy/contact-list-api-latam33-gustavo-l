@@ -1,17 +1,19 @@
 import React, { useState, useContext } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
-import { useNavigate } from "react-router-dom";
 
-export const AddContact = () => {
+export const EditContact = () => {
     const { actions } = useContext(Context);
     const navigate = useNavigate();
-    
+    const { id } = useParams(); // Obtener el ID desde la URL
+    const location = useLocation(); // Obtener los datos del contacto a través de la navegación
+
     const [contact, setContact] = useState({
-        full_name: "",
-        email: "",
-        agenda_slug: "Gustavo-Liendo",
-        address: "",
-        phone: ""
+        name: location.state.name,
+        email: location.state.email,
+        agenda_slug: "Gustavo-Liendo", // Slug fijo
+        address: location.state.address,
+        phone: location.state.phone
     });
 
     const handleChange = (e) => {
@@ -23,13 +25,13 @@ export const AddContact = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        actions.addContact(contact);
-        navigate("/"); 
+        actions.updateContact({ ...contact, id }); 
+        navigate("/");  
     };
 
     return (
         <div className="container mt-5">
-            <h1>Add a New Contact</h1>
+            <h1>Edit Contact</h1>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label>Full Name</label>

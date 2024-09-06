@@ -1,40 +1,55 @@
 const getState = ({ getStore, getActions, setStore }) => {
     return {
         store: {
-            contacts: [], 
+            contacts: [],
         },
         actions: {
             fetchContacts: async () => {
                 try {
                     const response = await fetch(`https://playground.4geeks.com/contact/agendas/Gustavo-Liendo`);
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch gustavo liendo agenda");
+                    
+                    if (response.status === 404) {
+                        console.log("Agenda not found, creating a new one...");
+                        await getActions().createAgenda(); 
+                        return; 
                     }
+            
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch Gustavo Liendo's agenda");
+                    }
+            
                     const data = await response.json();
-                    console.log("Fetched agendas: ", data);
+                    console.log("Fetched contacts: ", data);
                     setStore({ contacts: data.contacts }); 
                 } catch (error) {
-                    console.error("Error fetching gustavo:", error);
+                    console.error("Error fetching contacts:", error);
                 }
             },
 
-            // fetchAgendas: async () => {
-            //     try {
-            //         const response = await fetch(`https://playground.4geeks.com/contact/agendas`);
-            //         if (!response.ok) {
-            //             throw new Error("Failed to fetch agendas");
-            //         }
-            //         const data = await response.json();
-            //         console.log("Fetched agendas: ", data);
-            //         setStore({ agendas: data.agendas }); 
-            //     } catch (error) {
-            //         console.error("Error fetching agendas:", error);
-            //     }
-            // },
+            createAgenda: async () => {
+                try {
+                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/Gustavo-Liendo`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ slug: "Gustavo-Liendo" })
+                    });
+            
+                    if (!response.ok) {
+                        throw new Error("Failed to create the agenda");
+                    }
+            
+                    console.log("Agenda created successfully");
+                    getActions().fetchContacts();
+                } catch (error) {
+                    console.error("Error creating agenda:", error);
+                }
+            },           
 
             addContact: async (newContact) => {
                 try {
-                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/Gustavo-Liendo/${newContact}`, {
+                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/Gustavo-Liendo/contacts`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -42,7 +57,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                         body: JSON.stringify(newContact)
                     });
                     if (response.ok) {
-                        getActions().fetchContacts(newContact.agenda_slug); 
+                        console.log("Contact added successfully");
+                        getActions().fetchContacts();
                     } else {
                         console.error("Error adding contact:", response.statusText);
                     }
@@ -53,15 +69,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             updateContact: async (updatedContact) => {
                 try {
-                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/${updatedContact.agenda_slug}/contacts/${updatedContact.id}`, {
+                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/Gustavo-Liendo/contacts/${updatedContact.id}`, {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify(updatedContact)
+                        body: JSON.stringify(updatedContact) // Enviar datos del contacto actualizado
                     });
                     if (response.ok) {
-                        getActions().fetchContacts(updatedContact.agenda_slug); 
+                        console.log("Contact updated successfully");
+                        getActions().fetchContacts(); // Refrescar lista de contactos
                     } else {
                         console.error("Error updating contact:", response.statusText);
                     }
@@ -70,13 +87,15 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            deleteContact: async (slug, id) => {
+            // Eliminar un contacto existente
+            deleteContact: async (id) => {
                 try {
-                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/${slug}/contacts/${id}`, {
+                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/Gustavo-Liendo/contacts/${id}`, {
                         method: "DELETE"
                     });
                     if (response.ok) {
-                        getActions().fetchContacts(slug); 
+                        console.log("Contact deleted successfully");
+                        getActions().fetchContacts(); // Refrescar lista de contactos después de eliminar
                     } else {
                         console.error("Error deleting contact:", response.statusText);
                     }
